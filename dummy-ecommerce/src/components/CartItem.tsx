@@ -9,7 +9,7 @@ function formatPrice(cents: number): string {
 }
 
 export function CartItemRow({ item }: { item: CartItemType }) {
-  const { removeFromCart, updateQuantity } = useCart();
+  const { removeFromCart, changeQuantity } = useCart();
 
   return (
     <div
@@ -33,7 +33,7 @@ export function CartItemRow({ item }: { item: CartItemType }) {
       <div className="flex items-center gap-2">
         <button
           data-testid={`quantity-decrease-${item.id}`}
-          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+          onClick={() => changeQuantity(item.id, -1)}
           disabled={item.quantity <= 1}
           className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label={`Decrease quantity of ${item.name}`}
@@ -48,7 +48,7 @@ export function CartItemRow({ item }: { item: CartItemType }) {
         </span>
         <button
           data-testid={`quantity-increase-${item.id}`}
-          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+          onClick={() => changeQuantity(item.id, 1)}
           className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100"
           aria-label={`Increase quantity of ${item.name}`}
         >

@@ -20,6 +20,7 @@ export default defineConfig({
   workers: env.workers ?? (env.isCI ? 1 : 4),
   reporter: [
     ['list'],
+    ['./src/support/GitHubSummaryReporter.ts'],
     ['html', { open: 'never' }],
     ['junit', { outputFile: 'test-results/junit.xml' }],
   ],

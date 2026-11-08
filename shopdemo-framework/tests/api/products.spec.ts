@@ -52,18 +52,28 @@ test.describe('products', { tag: '@regression' }, () => {
       expect(body.products.every((product) => product.category === 'books')).toBe(true);
     });
 
-    test('sorts products by price ascending', async ({ productsApiClient }) => {
-      const response = await productsApiClient.getProducts({
-        sort: 'price_asc',
+    for (const sort of ['price_asc', 'price_desc'] as const) {
+      test(`sorts the complete catalog by ${sort}`, async ({ productsApiClient }) => {
+        const baseline = await productsApiClient.getProducts();
+        expect(baseline.status()).toBe(200);
+        const { products: original } = ProductsResponseSchema.parse(await baseline.json());
+        expect(original.length).toBeGreaterThan(1);
+
+        const response = await productsApiClient.getProducts({ sort });
+        expect(response.status()).toBe(200);
+        const { products } = ProductsResponseSchema.parse(await response.json());
+        // Order alone would also pass for an empty or truncated response.
+        expect(products.map((product) => product.id).sort()).toEqual(
+          original.map((product) => product.id).sort(),
+        );
+        const prices = products.map((product) => product.price);
+        expect(prices).toEqual(
+          original
+            .map((product) => product.price)
+            .sort((a, b) => (sort === 'price_asc' ? a - b : b - a)),
+        );
       });
-
-      expect(response.status()).toBe(200);
-
-      const body = ProductsResponseSchema.parse(await response.json());
-      const prices = body.products.map((product) => product.price);
-
-      expect(prices).toEqual([...prices].sort((a, b) => a - b));
-    });
+    }
 
     test('returns a product by ID', async ({ productsApiClient }) => {
       const response = await productsApiClient.getProductById('prod-001');

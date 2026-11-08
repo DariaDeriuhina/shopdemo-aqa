@@ -12,15 +12,63 @@ test.describe('Cart validation and concurrency', { tag: '@regression' }, () => {
       const { products } = ProductsResponseSchema.parse(
         await (await productsApiClient.getProducts()).json(),
       );
+      const seed = await cartApiClient.addItem(products[0].id, 2);
+      expect(seed.status()).toBe(200);
+      const before = CartSchema.parse(await seed.json());
       const response = await request.post('/api/cart', {
         data: { productId: products[0].id, quantity },
       });
       expect(response.status()).toBe(400);
       ApiErrorSchema.parse(await response.json());
       const cart = CartSchema.parse(await (await cartApiClient.getCart()).json());
-      expect(cart).toEqual({ items: [], total: 0 });
+      expect(cart).toEqual(before);
     });
   }
+
+  for (const quantity of [null, '2', true, {}, [], -1, 1.5, 100, undefined]) {
+    test(`PATCH rejects quantity ${JSON.stringify(quantity)} and preserves a populated cart`, async ({
+      cartApiClient,
+      request,
+      productsApiClient,
+    }) => {
+      const catalog = await productsApiClient.getProducts();
+      expect(catalog.status()).toBe(200);
+      const { products } = ProductsResponseSchema.parse(await catalog.json());
+      const seed = await cartApiClient.addItem(products[0].id, 2);
+      expect(seed.status()).toBe(200);
+      const before = CartSchema.parse(await seed.json());
+      const response = await request.patch(`/api/cart/${before.items[0].id}`, {
+        data: { quantity },
+      });
+      expect(response.status()).toBe(400);
+      ApiErrorSchema.parse(await response.json());
+      const after = await cartApiClient.getCart();
+      expect(after.status()).toBe(200);
+      expect(CartSchema.parse(await after.json())).toEqual(before);
+    });
+  }
+
+  test('PATCH rejects malformed JSON without deleting existing items', async ({
+    cartApiClient,
+    request,
+    productsApiClient,
+  }) => {
+    const catalog = await productsApiClient.getProducts();
+    expect(catalog.status()).toBe(200);
+    const { products } = ProductsResponseSchema.parse(await catalog.json());
+    const seed = await cartApiClient.addItem(products[0].id, 2);
+    expect(seed.status()).toBe(200);
+    const before = CartSchema.parse(await seed.json());
+    const response = await request.patch(`/api/cart/${before.items[0].id}`, {
+      data: '{',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    expect(response.status()).toBe(400);
+    ApiErrorSchema.parse(await response.json());
+    const after = await cartApiClient.getCart();
+    expect(after.status()).toBe(200);
+    expect(CartSchema.parse(await after.json())).toEqual(before);
+  });
 
   test('defaults quantity, checks stock, and caps merged quantities', async ({
     cartApiClient,

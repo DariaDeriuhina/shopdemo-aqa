@@ -18,7 +18,7 @@
     "test:api": "playwright test --project=api",
     "test:browser": "playwright test --project=chromium",
     "test:ci": "node scripts/run-ci.mjs",
-    "test:stability": "playwright test tests/api/cart.spec.ts tests/api/cart-validation.spec.ts tests/integration/cart-integration.spec.ts --repeat-each=5 --workers=5",
+    "test:stability": "playwright test tests/api/cart.spec.ts tests/api/cart-validation.spec.ts tests/integration/cart-integration.spec.ts tests/integration/cart-concurrency.spec.ts --repeat-each=5 --workers=5",
     "test:cross-browser": "node scripts/run-cross-browser.mjs"
   },
   "devDependencies": {

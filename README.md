@@ -95,7 +95,8 @@ WebKit is an optional configuration, not part of the verified release matrix.
 
 ## Reports and CI
 
-All normal runs produce HTML plus JUnit. Browser failures also keep a trace,
+All normal runs produce HTML plus JUnit. GitHub jobs also show a compact test-outcome
+summary, including failures, flakes and skips, even when artifact uploads are disabled. Browser failures also keep a trace,
 screenshot and bounded `browser-diagnostics` JSON attachment. Request URL query
 strings, headers and bodies are not copied into that JSON. Console messages and
 Playwright traces can still contain application data; use synthetic test data.
@@ -103,8 +104,15 @@ Playwright traces can still contain application data; use synthetic test data.
 A manual GitHub Actions workflow runs quality gates, then separate API/Chromium/Firefox
 jobs. Report artifact upload is opt-in through `upload_reports`; it is disabled
 by default, and dependency caching is not configured. It expects this entire folder as one repository.
-Full regression is [verified on GitHub-hosted Linux runners](https://github.com/DariaDeriuhina/shopdemo-aqa/actions/runs/42466303758):
+The initial 71-execution regression is [verified on GitHub-hosted Linux runners](https://github.com/DariaDeriuhina/shopdemo-aqa/actions/runs/42466303758):
 23 API tests, 24 Chromium tests and 24 Firefox tests, with all quality checks passing.
+The expanded suite contains 34 API scenarios and 27 browser scenarios (88 executions across both browsers).
+
+To download a report, choose **Actions → Portfolio checks → Run workflow**, select
+`regression`, and enable `upload_reports`. After the run, download the corresponding
+`playwright-api`, `playwright-chromium`, or `playwright-firefox` artifact. Extract it
+and use `npx playwright show-report <path-to-playwright-report>` from the framework folder.
+The summary is a quick overview; HTML and traces provide detailed investigation.
 
 Technical documentation: [architecture](docs/ARCHITECTURE.md) and
 [test strategy](docs/TEST-STRATEGY.md).

@@ -47,6 +47,13 @@ The server reads mutable cart state after awaiting JSON parsing. Otherwise two
 requests starting against an empty cart could each capture a different empty array
 and overwrite one another. A concurrent-additions test guards this behavior.
 
+The browser cart provider serializes its initial read, refreshes and mutations.
+A delayed read cannot overwrite a later mutation, and the initial cookie is received
+before the first write. Quantity buttons enqueue deltas resolved against the last
+confirmed cart, so rapid clicks do not reuse a stale rendered quantity. Failed
+operations leave the queue usable. This ordering is scoped to one provider/tab;
+it is not cross-tab synchronization or a server-side transaction mechanism.
+
 ## Decision 3: controlled HTTP and browser mocking serve different purposes
 
 Products and Cart are real HTTP handlers. MSW auth/checkout remain explicitly
@@ -76,7 +83,7 @@ limits before test discovery. Managed test runs default to a fresh production bu
 An explicit development mode is available for debugging; it is not the release gate.
 Production mode never silently reuses an unrelated server. A manually triggered GitHub Actions workflow
 runs package quality gates and then API/Chromium/Firefox jobs. Report uploads are an explicit manual option, disabled by default; when
-enabled, reports are retained even when tests fail. The complete regression and quality gates have been [verified on GitHub-hosted Linux runners](https://github.com/DariaDeriuhina/shopdemo-aqa/actions/runs/42466303758).
+enabled, reports are retained even when tests fail. A small reporter writes test-case outcome counts to the GitHub job summary independently of artifact uploads; retries are not counted as separate tests. The complete regression and quality gates have been [verified on GitHub-hosted Linux runners](https://github.com/DariaDeriuhina/shopdemo-aqa/actions/runs/42466303758).
 
 ## Extension boundaries
 

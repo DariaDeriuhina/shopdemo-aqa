@@ -19,11 +19,14 @@ test.describe('catalog', { tag: '@regression' }, () => {
   });
 
   test('category filter and sort match the real API', async ({ page, productsApiClient }) => {
-    const { products } = ProductsResponseSchema.parse(
-      await (
-        await productsApiClient.getProducts({ category: 'electronics', sort: 'price_asc' })
-      ).json(),
-    );
+    const catalog = await productsApiClient.getProducts({
+      category: 'electronics',
+      sort: 'price_asc',
+    });
+    expect(catalog.status()).toBe(200);
+    const { products } = ProductsResponseSchema.parse(await catalog.json());
+    expect(products.length).toBeGreaterThan(0);
+    expect(products.every((product) => product.category === 'electronics')).toBe(true);
     await page.goto('/?e2eNoMsw=1');
     const response = page.waitForResponse(
       (r) =>

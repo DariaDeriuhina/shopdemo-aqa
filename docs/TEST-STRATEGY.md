@@ -10,9 +10,9 @@ against the application's documented MSW simulation, not a production auth servi
 
 ## Release suite
 
-The default suite has **47 scenarios**: **23 API** and **24 Chromium**.
-With Chromium and Firefox, API runs once and 24 UI scenarios run in each browser:
-**71 executions**. Six smoke scenarios cover catalog API, cart lifecycle, seeded
+The default suite has **61 scenarios**: **34 API** and **27 Chromium**.
+With Chromium and Firefox, API runs once and 27 UI scenarios run in each browser:
+**88 executions**. Six smoke scenarios cover catalog API, cart lifecycle, seeded
 login, catalog after login, API/UI cart consistency and complete demo checkout.
 All normal tests carry `@regression`; smoke is a subset, not a second test copy.
 
@@ -20,8 +20,9 @@ All normal tests carry `@regression`; smoke is a subset, not a second test copy.
 | --------------------------------------------------------------- | --------------------------------------------------------- |
 | Product list/search/category/sort/detail/unknown ID             | tests/api/products.spec.ts                                |
 | CRUD lifecycle, merge, totals, zero removal                     | tests/api/cart.spec.ts                                    |
-| Invalid JSON and quantities do not change state                 | tests/api/cart.spec.ts; tests/api/cart-validation.spec.ts |
+| Invalid POST/PATCH input preserves populated cart state                 | tests/api/cart.spec.ts; tests/api/cart-validation.spec.ts |
 | Stock enforcement, default quantity, quantity cap               | tests/api/cart-validation.spec.ts                         |
+| Delayed cart responses, rapid clicks, recovery after failed mutation | tests/integration/cart-concurrency.spec.ts |
 | Concurrent additions are not lost                               | tests/api/cart-validation.spec.ts                         |
 | Separate sessions cannot read/change each other's cart          | tests/api/cart.spec.ts                                    |
 | Multi-product totals and partial deletion                       | tests/api/cart-validation.spec.ts                         |

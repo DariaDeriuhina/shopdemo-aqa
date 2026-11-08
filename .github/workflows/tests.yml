@@ -39,6 +39,7 @@ jobs:
       BROWSERS: chromium,firefox
       NEXT_TELEMETRY_DISABLED: "1"
       SUITE: ${{ inputs.suite }}
+      UPLOAD_REPORTS: ${{ inputs.upload_reports }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
