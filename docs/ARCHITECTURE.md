@@ -75,8 +75,8 @@ Configuration validates origin, browser choices, server ownership and numeric
 limits before test discovery. Managed test runs default to a fresh production build, both locally and in CI.
 An explicit development mode is available for debugging; it is not the release gate.
 Production mode never silently reuses an unrelated server. A manually triggered GitHub Actions workflow
-runs package quality gates and then API/Chromium/Firefox jobs, preserving reports
-even when tests fail. Hosted execution is not claimed until it actually runs.
+runs package quality gates and then API/Chromium/Firefox jobs. Report uploads are an explicit manual option, disabled by default; when
+enabled, reports are retained even when tests fail. Hosted execution is not claimed until it actually runs.
 
 ## Extension boundaries
 

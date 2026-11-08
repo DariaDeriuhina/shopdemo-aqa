@@ -99,7 +99,8 @@ strings, headers and bodies are not copied into that JSON. Console messages and
 Playwright traces can still contain application data; use synthetic test data.
 
 A manual GitHub Actions workflow runs quality gates, then separate API/Chromium/Firefox
-jobs and preserves artifacts on failure. It expects this entire folder as one repository.
+jobs. Report artifact upload is opt-in through `upload_reports`; it is disabled
+by default, and dependency caching is not configured. It expects this entire folder as one repository.
 No workflow has been published or remotely executed as part of local preparation.
 
 Technical documentation: [architecture](docs/ARCHITECTURE.md) and

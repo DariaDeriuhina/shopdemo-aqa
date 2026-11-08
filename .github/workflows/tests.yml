@@ -7,6 +7,10 @@ on:
         type: choice
         options: [smoke, regression]
         default: smoke
+      upload_reports:
+        description: Upload HTML and JUnit artifacts (uses account storage)
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -21,10 +25,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
-          cache: npm
-          cache-dependency-path: |
-            dummy-ecommerce/package-lock.json
-            shopdemo-framework/package-lock.json
       - run: npm run setup
       - run: npm run check
   tests:
@@ -44,10 +44,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
-          cache: npm
-          cache-dependency-path: |
-            dummy-ecommerce/package-lock.json
-            shopdemo-framework/package-lock.json
       - run: npm run setup
       - if: matrix.project != 'api'
         working-directory: shopdemo-framework
@@ -60,7 +56,7 @@ jobs:
           PROJECT: ${{ matrix.project }}
         run: npm run test:ci -- --project="$PROJECT" --grep="@$SUITE"
       - uses: actions/upload-artifact@v5
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && inputs.upload_reports }}
         with:
           name: playwright-${{ matrix.project }}
           path: |
