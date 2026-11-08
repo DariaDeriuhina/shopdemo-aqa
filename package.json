@@ -1,0 +1,25 @@
+{
+  "name": "shopdemo-aqa-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A reproducible TypeScript and Playwright AQA portfolio with a controlled local application",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "setup": "npm --prefix dummy-ecommerce ci && npm --prefix shopdemo-framework ci",
+    "browsers:install": "cd shopdemo-framework && npx playwright install chromium firefox",
+    "dev": "npm --prefix dummy-ecommerce run dev",
+    "build": "npm --prefix dummy-ecommerce run build",
+    "check": "npm --prefix shopdemo-framework run check && npm --prefix dummy-ecommerce run check",
+    "test": "npm --prefix shopdemo-framework test --",
+    "test:smoke": "npm --prefix shopdemo-framework run test:smoke --",
+    "test:api": "npm --prefix shopdemo-framework run test:api --",
+    "test:browser": "npm --prefix shopdemo-framework run test:browser --",
+    "test:ci": "npm --prefix shopdemo-framework run test:ci --",
+    "test:cross-browser": "npm --prefix shopdemo-framework run test:cross-browser --",
+    "test:stability": "npm --prefix shopdemo-framework run test:stability --",
+    "test:report": "npm --prefix shopdemo-framework run test:report --",
+    "test:regression": "npm --prefix shopdemo-framework run test:regression --"
+  }
+}

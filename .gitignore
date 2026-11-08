@@ -1,0 +1,17 @@
+**/node_modules/
+**/.next/
+**/out/
+**/playwright-report/
+**/test-results/
+**/diagnostics-report/
+**/diagnostics-results/
+**/*.tsbuildinfo
+**/.DS_Store
+**/.env
+**/.env.*
+!**/.env.example
+*.zip
+**/*.bak
+
+# Next.js generates agent guidance locally; it is not part of this portfolio.
+**/AGENTS.md

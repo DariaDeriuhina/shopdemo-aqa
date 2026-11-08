@@ -1,0 +1,69 @@
+name: Portfolio checks
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Test suite
+        type: choice
+        options: [smoke, regression]
+        default: smoke
+permissions:
+  contents: read
+concurrency:
+  group: portfolio-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            dummy-ecommerce/package-lock.json
+            shopdemo-framework/package-lock.json
+      - run: npm run setup
+      - run: npm run check
+  tests:
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [api, chromium, firefox]
+    env:
+      BROWSERS: chromium,firefox
+      NEXT_TELEMETRY_DISABLED: "1"
+      SUITE: ${{ inputs.suite }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            dummy-ecommerce/package-lock.json
+            shopdemo-framework/package-lock.json
+      - run: npm run setup
+      - if: matrix.project != 'api'
+        working-directory: shopdemo-framework
+        env:
+          BROWSER: ${{ matrix.project }}
+        run: npx playwright install --with-deps "$BROWSER"
+      - name: Run selected suite against a fresh production build
+        working-directory: shopdemo-framework
+        env:
+          PROJECT: ${{ matrix.project }}
+        run: npm run test:ci -- --project="$PROJECT" --grep="@$SUITE"
+      - uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-${{ matrix.project }}
+          path: |
+            shopdemo-framework/playwright-report/
+            shopdemo-framework/test-results/
+          retention-days: 7

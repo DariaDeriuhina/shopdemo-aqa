@@ -1,0 +1,37 @@
+{
+  "name": "shopdemo-playwright-framework",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run typecheck && npm run lint && npm run format:check",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:regression": "playwright test --grep @regression",
+    "test:api": "playwright test --project=api",
+    "test:browser": "playwright test --project=chromium",
+    "test:ci": "node scripts/run-ci.mjs",
+    "test:stability": "playwright test tests/api/cart.spec.ts tests/api/cart-validation.spec.ts tests/integration/cart-integration.spec.ts --repeat-each=5 --workers=5",
+    "test:cross-browser": "node scripts/run-cross-browser.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^24.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.0.0",
+    "zod": "^4.6.7"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
