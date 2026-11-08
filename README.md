@@ -1,5 +1,7 @@
 # ShopDemo AQA Portfolio
 
+[![Portfolio checks](https://github.com/DariaDeriuhina/shopdemo-aqa/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/DariaDeriuhina/shopdemo-aqa/actions/workflows/tests.yml)
+
 TypeScript + Playwright automation for a controlled local e-commerce application.
 The project demonstrates risk-based coverage, Page Objects, API clients, runtime
 contracts, isolated test data, cross-browser execution and failure diagnostics.
@@ -101,7 +103,8 @@ Playwright traces can still contain application data; use synthetic test data.
 A manual GitHub Actions workflow runs quality gates, then separate API/Chromium/Firefox
 jobs. Report artifact upload is opt-in through `upload_reports`; it is disabled
 by default, and dependency caching is not configured. It expects this entire folder as one repository.
-No workflow has been published or remotely executed as part of local preparation.
+Full regression is [verified on GitHub-hosted Linux runners](https://github.com/DariaDeriuhina/shopdemo-aqa/actions/runs/42466303758):
+23 API tests, 24 Chromium tests and 24 Firefox tests, with all quality checks passing.
 
 Technical documentation: [architecture](docs/ARCHITECTURE.md) and
 [test strategy](docs/TEST-STRATEGY.md).

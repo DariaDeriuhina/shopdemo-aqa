@@ -76,7 +76,7 @@ limits before test discovery. Managed test runs default to a fresh production bu
 An explicit development mode is available for debugging; it is not the release gate.
 Production mode never silently reuses an unrelated server. A manually triggered GitHub Actions workflow
 runs package quality gates and then API/Chromium/Firefox jobs. Report uploads are an explicit manual option, disabled by default; when
-enabled, reports are retained even when tests fail. Hosted execution is not claimed until it actually runs.
+enabled, reports are retained even when tests fail. The complete regression and quality gates have been [verified on GitHub-hosted Linux runners](https://github.com/DariaDeriuhina/shopdemo-aqa/actions/runs/42466303758).
 
 ## Extension boundaries
 
