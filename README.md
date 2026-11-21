@@ -1,120 +1,26 @@
-# ShopDemo AQA Portfolio
+# ShopDemo tests
 
-[![Portfolio checks](https://github.com/DariaDeriuhina/shopdemo-aqa/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/DariaDeriuhina/shopdemo-aqa/actions/workflows/tests.yml)
+[Open the latest successful regression report](https://dariaderiuhina.github.io/shopdemo-aqa/) · [GitHub Actions run history](https://github.com/DariaDeriuhina/shopdemo-aqa/actions/workflows/tests.yml)
 
-TypeScript + Playwright automation for a controlled local e-commerce application.
-The project demonstrates risk-based coverage, Page Objects, API clients, runtime
-contracts, isolated test data, cross-browser execution and failure diagnostics.
+I use Playwright and TypeScript to test a small online shop. The report lists the API tests and the browser tests run in Chromium and Firefox. Open a test to see its steps and timing.
 
-## Quick start
+One bug I wanted to catch was a lost click in the cart. A shopper starts with two items and clicks **+** twice while the first update is still loading. If both updates succeed, the cart should show four. The test holds the first response open, makes the second click, then checks the quantity on screen and on the server. [Read the cart test](shopdemo-framework/tests/integration/cart-concurrency.spec.ts)
 
-Prerequisites: Node.js 22+ and npm. All commands below run from this folder.
+## What the tests cover
+
+Products and carts use real HTTP routes in the local demo shop. The API tests check rules like cart totals and keeping two shoppers’ carts separate. Browser tests cover shopping, sign-in and demo checkout. The demo simulates sign-in and order confirmation in the browser. Checkout clears the shopper’s cart.
+
+## Run it locally
+
+Use Node.js 22 or newer. From the repository root, run:
 
 ```sh
 npm run setup
 npm run browsers:install
-npm run check
 npm run test:smoke
+npm run test:report
 ```
 
-Tests build and manage a fresh production version of the sibling application automatically. No API key, account registration,
-external test website or payment service is needed. Test checkout only simulates an order.
-`setup` and browser installation download development dependencies once.
+Playwright starts the shop for you. For the full API, Chromium and Firefox run, use `npm run test:cross-browser`.
 
-## Commands
-
-| Command                      | Purpose                                                      |
-| ---------------------------- | ------------------------------------------------------------ |
-| `npm test`                   | Full API + Chromium regression                               |
-| `npm run test:smoke`         | Six critical business scenarios                              |
-| `npm run test:api`           | HTTP-only tests; no browser launch                           |
-| `npm run test:browser`       | Chromium UI/integration/network tests                        |
-| `npm run test:cross-browser` | API once + Chromium and Firefox                              |
-| `npm run test:stability`     | Cart API/UI cases repeated five times on five workers        |
-| `npm run test:ci`            | Fresh production build, one worker, flaky tests fail the run |
-| `npm run test:report`        | Open the last HTML report                                    |
-| `npm run dev`                | Start the application manually                               |
-
-Stop a manually started server before managed test runs: it requires its own fresh server.
-Use `START_WEB_SERVER=0` explicitly to test an already running compatible server.
-
-## Repository layout
-
-```text
-.github/workflows/tests.yml       # manually triggered CI pipeline
-package.json                     # convenience commands for both folders
-shopdemo-framework/
-  src/config/                    # validated environment settings
-  src/pages/                     # UI business actions; assertions live in tests
-  src/api/                       # reusable HTTP clients returning raw responses
-  src/schemas/                   # runtime contracts with Zod
-  src/data/                      # independent test-data factories
-  src/fixtures/                  # lifecycle, session sharing and cleanup
-  src/support/                   # failure diagnostics
-  tests/api/                     # real HTTP contracts, CRUD, validation, isolation
-  tests/integration/             # real API state ↔ browser state
-  tests/network/                 # controlled delays, failures and response overrides
-  tests/shopping.spec.ts          # product → cart → demo checkout
-dummy-ecommerce/                 # local Next.js application derived from ShopDemo
-docs/                            # architecture and test strategy
-```
-
-## What is real and what is simulated?
-
-| Capability                                            | Implementation                                                               |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Products list/detail                                  | Real Next.js GET HTTP routes                                                 |
-| Cart GET/POST/PATCH/DELETE                            | Real Next.js HTTP routes; HttpOnly session cookie                            |
-| Cart storage                                          | In memory in one Node process; expires after 24h; resets on restart          |
-| Auth, signup, logout                                  | Browser MSW simulation with seeded demo accounts                             |
-| Checkout                                              | Browser MSW validates data, reads/clears the real cart, returns a demo order |
-| Persistence, real payments, production authentication | Outside this portfolio's scope                                               |
-
-An API test exercises server code. A checkout UI test exercises the demo integration;
-it does not prove a production payment or order service. This distinction is explicit
-in the [test strategy](docs/TEST-STRATEGY.md) and [architecture](docs/ARCHITECTURE.md).
-
-## Configuration
-
-Variables are read from the shell/CI, not automatically from `.env` files.
-See `shopdemo-framework/.env.example` for all supported values.
-
-```sh
-# Use another local port (Playwright starts the server on that port):
-BASE_URL=http://127.0.0.1:3100 npm test
-# Reuse an already deployed compatible demo:
-BASE_URL=https://your-test-host.example START_WEB_SERVER=0 npm test
-# Run both supported browsers against a production build:
-BROWSERS=chromium,firefox npm run test:ci
-```
-
-Invalid settings fail at startup. Defaults: loopback port 3000, Chromium,
-4 local workers/1 CI worker, no local retries/1 CI retry.
-CI uses `failOnFlakyTests`: a test passing only on retry still fails the pipeline.
-WebKit is an optional configuration, not part of the verified release matrix.
-
-## Reports and CI
-
-All normal runs produce HTML plus JUnit. GitHub jobs also show a compact test-outcome
-summary, including failures, flakes and skips, even when artifact uploads are disabled. Browser failures also keep a trace,
-screenshot and bounded `browser-diagnostics` JSON attachment. Request URL query
-strings, headers and bodies are not copied into that JSON. Console messages and
-Playwright traces can still contain application data; use synthetic test data.
-
-A manual GitHub Actions workflow runs quality gates, then separate API/Chromium/Firefox
-jobs. Report artifact upload is opt-in through `upload_reports`; it is disabled
-by default, and dependency caching is not configured. It expects this entire folder as one repository.
-The initial 71-execution regression is [verified on GitHub-hosted Linux runners](https://github.com/DariaDeriuhina/shopdemo-aqa/actions/runs/42466303758):
-23 API tests, 24 Chromium tests and 24 Firefox tests, with all quality checks passing.
-The expanded suite contains 34 API scenarios and 27 browser scenarios (88 executions across both browsers).
-
-To download a report, choose **Actions → Portfolio checks → Run workflow**, select
-`regression`, and enable `upload_reports`. After the run, download the corresponding
-`playwright-api`, `playwright-chromium`, or `playwright-firefox` artifact. Extract it
-and use `npx playwright show-report <path-to-playwright-report>` from the framework folder.
-The summary is a quick overview; HTML and traces provide detailed investigation.
-
-Technical documentation: [architecture](docs/ARCHITECTURE.md) and
-[test strategy](docs/TEST-STRATEGY.md).
-
-Application attribution: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+The tests live in [shopdemo-framework/tests](shopdemo-framework/tests). The [test strategy](docs/TEST-STRATEGY.md) explains the coverage. The [architecture notes](docs/ARCHITECTURE.md) explain the setup. The demo shop is adapted from [ShopDemo](THIRD_PARTY_NOTICES.md).

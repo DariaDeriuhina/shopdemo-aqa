@@ -54,6 +54,7 @@ jobs:
       - name: Run selected suite against a fresh production build
         working-directory: shopdemo-framework
         env:
+          PLAYWRIGHT_BLOB_OUTPUT_FILE: blob-report/${{ matrix.project }}.zip
           PROJECT: ${{ matrix.project }}
         run: npm run test:ci -- --project="$PROJECT" --grep="@$SUITE"
       - uses: actions/upload-artifact@v5
@@ -64,3 +65,41 @@ jobs:
             shopdemo-framework/playwright-report/
             shopdemo-framework/test-results/
           retention-days: 7
+      - uses: actions/upload-artifact@v5
+        if: github.ref == 'refs/heads/main' && inputs.suite == 'regression'
+        with:
+          name: results-${{ matrix.project }}
+          path: shopdemo-framework/blob-report/*.zip
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    needs: tests
+    if: github.ref == 'refs/heads/main' && inputs.suite == 'regression'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+      - run: npm ci
+        working-directory: shopdemo-framework
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: results-*
+          path: shopdemo-framework/blob-report
+          merge-multiple: true
+      - run: npx playwright merge-reports --reporter html blob-report
+        working-directory: shopdemo-framework
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: shopdemo-framework/playwright-report
+      - id: deploy
+        uses: actions/deploy-pages@v4
