@@ -7,10 +7,6 @@ on:
         type: choice
         options: [smoke, regression]
         default: smoke
-      upload_reports:
-        description: Upload HTML and JUnit artifacts (uses account storage)
-        type: boolean
-        default: false
 permissions:
   contents: read
 concurrency:
@@ -39,7 +35,6 @@ jobs:
       BROWSERS: chromium,firefox
       NEXT_TELEMETRY_DISABLED: "1"
       SUITE: ${{ inputs.suite }}
-      UPLOAD_REPORTS: ${{ inputs.upload_reports }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -58,7 +53,7 @@ jobs:
           PROJECT: ${{ matrix.project }}
         run: npm run test:ci -- --project="$PROJECT" --grep="@$SUITE"
       - uses: actions/upload-artifact@v5
-        if: ${{ !cancelled() && inputs.upload_reports }}
+        if: failure()
         with:
           name: playwright-${{ matrix.project }}
           path: |
@@ -100,6 +95,9 @@ jobs:
         working-directory: shopdemo-framework
       - uses: actions/upload-pages-artifact@v3
         with:
+          name: github-pages-${{ github.run_attempt }}
           path: shopdemo-framework/playwright-report
       - id: deploy
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}

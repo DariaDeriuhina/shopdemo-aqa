@@ -82,8 +82,7 @@ Configuration validates origin, browser choices, server ownership and numeric
 limits before test discovery. Managed test runs default to a fresh production build, both locally and in CI.
 An explicit development mode is available for debugging; it is not the release gate.
 Production mode never silently reuses an unrelated server. A manually triggered GitHub Actions workflow
-runs package quality gates and then API/Chromium/Firefox jobs. Report uploads are an explicit manual option, disabled by default; when
-enabled, reports are retained even when tests fail. A small reporter writes test-case outcome counts to the GitHub job summary independently of artifact uploads; retries are not counted as separate tests. The complete regression and quality gates have been [verified on GitHub-hosted Linux runners](https://github.com/DariaDeriuhina/shopdemo-aqa/actions/runs/42466303758).
+runs package quality gates and then API/Chromium/Firefox jobs. Failed jobs upload available diagnostic reports. Successful regression runs on main publish the combined HTML report to GitHub Pages. A small reporter writes test-case outcome counts to the GitHub job summary independently of artifact uploads; retries are not counted as separate tests. The complete regression and quality gates have been [verified on GitHub-hosted Linux runners](https://github.com/DariaDeriuhina/shopdemo-aqa/actions/runs/42466303758).
 
 ## Extension boundaries
 

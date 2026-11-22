@@ -23,7 +23,6 @@ export default defineConfig({
     ...(process.env.PLAYWRIGHT_BLOB_OUTPUT_FILE ? [['blob'] as ['blob']] : []),
     ['./src/support/GitHubSummaryReporter.ts'],
     ['html', { open: 'never' }],
-    ['junit', { outputFile: 'test-results/junit.xml' }],
   ],
   use: {
     baseURL: env.baseURL,
